@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,9 +18,13 @@
             --error: #ef4444;
             --warning: #f59e0b;
         }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'SF Mono', 'Fira Code', monospace;
             background: var(--bg);
@@ -27,20 +32,20 @@
             line-height: 1.6;
             min-height: 100vh;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
-        
+
         header {
             text-align: center;
             padding: 3rem 0;
             border-bottom: 1px solid var(--border);
             margin-bottom: 2rem;
         }
-        
+
         h1 {
             font-size: 2.5rem;
             background: linear-gradient(135deg, var(--accent), #a855f7);
@@ -48,37 +53,37 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
         }
-        
+
         .subtitle {
             color: var(--text-dim);
             font-size: 1rem;
         }
-        
+
         .status-bar {
             display: flex;
             justify-content: center;
             gap: 2rem;
             margin-top: 1.5rem;
         }
-        
+
         .status-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .status-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
             background: var(--error);
         }
-        
+
         .status-dot.connected {
             background: var(--success);
             box-shadow: 0 0 10px var(--success);
         }
-        
+
         .section {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -86,7 +91,7 @@
             padding: 1.5rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .section h2 {
             font-size: 1.2rem;
             color: var(--accent);
@@ -95,13 +100,13 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1rem;
         }
-        
+
         .endpoint-card {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -110,24 +115,24 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
+
         .endpoint-card:hover {
             border-color: var(--accent);
             box-shadow: 0 0 20px var(--accent-glow);
         }
-        
+
         .endpoint-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
         }
-        
+
         .endpoint-path {
             font-weight: bold;
             color: var(--text);
         }
-        
+
         .endpoint-method {
             font-size: 0.75rem;
             padding: 2px 8px;
@@ -135,33 +140,33 @@
             background: var(--accent);
             color: white;
         }
-        
+
         .endpoint-method.post {
             background: var(--warning);
         }
-        
+
         .endpoint-type {
             font-size: 0.7rem;
             padding: 2px 6px;
             border-radius: 4px;
             margin-left: 0.5rem;
         }
-        
+
         .endpoint-type.public {
             background: rgba(16, 185, 129, 0.2);
             color: var(--success);
         }
-        
+
         .endpoint-type.protected {
             background: rgba(239, 68, 68, 0.2);
             color: var(--error);
         }
-        
+
         .endpoint-desc {
             font-size: 0.85rem;
             color: var(--text-dim);
         }
-        
+
         .console {
             background: #000;
             border-radius: 8px;
@@ -170,28 +175,28 @@
             max-height: 300px;
             overflow-y: auto;
         }
-        
+
         .console-line {
             margin-bottom: 0.3rem;
         }
-        
+
         .console-line.request {
             color: var(--accent);
         }
-        
+
         .console-line.response {
             color: var(--success);
         }
-        
+
         .console-line.error {
             color: var(--error);
         }
-        
+
         .console-line .timestamp {
             color: var(--text-dim);
             margin-right: 0.5rem;
         }
-        
+
         button {
             background: var(--accent);
             color: white;
@@ -203,25 +208,26 @@
             font-size: 0.9rem;
             transition: all 0.2s;
         }
-        
+
         button:hover {
             background: #4f46e5;
             box-shadow: 0 0 20px var(--accent-glow);
         }
-        
+
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        
+
         .btn-row {
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
             margin-top: 1rem;
         }
-        
-        input, textarea {
+
+        input,
+        textarea {
             background: var(--bg);
             border: 1px solid var(--border);
             color: var(--text);
@@ -231,30 +237,31 @@
             font-size: 0.9rem;
             width: 100%;
         }
-        
-        input:focus, textarea:focus {
+
+        input:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--accent);
         }
-        
+
         .form-group {
             margin-bottom: 1rem;
         }
-        
+
         label {
             display: block;
             color: var(--text-dim);
             margin-bottom: 0.5rem;
             font-size: 0.85rem;
         }
-        
+
         code {
             background: var(--bg);
             padding: 0.2rem 0.5rem;
             border-radius: 4px;
             font-size: 0.85rem;
         }
-        
+
         pre {
             background: var(--bg);
             padding: 1rem;
@@ -262,38 +269,39 @@
             overflow-x: auto;
             font-size: 0.85rem;
         }
-        
+
         .docs-section {
             margin-top: 2rem;
         }
-        
+
         .docs-section h3 {
             color: var(--accent);
             margin-bottom: 1rem;
         }
-        
+
         .docs-section p {
             color: var(--text-dim);
             margin-bottom: 1rem;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 1rem 0;
         }
-        
-        th, td {
+
+        th,
+        td {
             text-align: left;
             padding: 0.75rem;
             border-bottom: 1px solid var(--border);
         }
-        
+
         th {
             color: var(--text-dim);
             font-weight: normal;
         }
-        
+
         .ws-status {
             display: inline-flex;
             align-items: center;
@@ -305,6 +313,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -321,7 +330,7 @@
                 </div>
             </div>
         </header>
-        
+
         <!-- Quick Actions -->
         <section class="section">
             <h2>⚡ Quick Test</h2>
@@ -334,7 +343,7 @@
                 <button onclick="clearConsole()">Clear Console</button>
             </div>
         </section>
-        
+
         <!-- Console Output -->
         <section class="section">
             <h2>📟 Console</h2>
@@ -342,7 +351,7 @@
                 <div class="console-line">Welcome to LocalGhost Demo. Click buttons above to test endpoints.</div>
             </div>
         </section>
-        
+
         <!-- API Endpoints -->
         <section class="section">
             <h2>🔌 Available Endpoints</h2>
@@ -350,7 +359,7 @@
                 <!-- Populated by JavaScript -->
             </div>
         </section>
-        
+
         <!-- WebSocket Test -->
         <section class="section">
             <h2>🔗 WebSocket Test</h2>
@@ -364,14 +373,15 @@
                 <button onclick="disconnectWebSocket()" id="wsDisconnectBtn" disabled>Disconnect</button>
             </div>
         </section>
-        
+
         <!-- Custom Request -->
         <section class="section">
             <h2>🛠️ Custom Request</h2>
             <div class="grid">
                 <div class="form-group">
                     <label>Method</label>
-                    <select id="reqMethod" style="background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.75rem; border-radius: 8px; width: 100%;">
+                    <select id="reqMethod"
+                        style="background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.75rem; border-radius: 8px; width: 100%;">
                         <option>GET</option>
                         <option>POST</option>
                         <option>PUT</option>
@@ -393,15 +403,15 @@
             </div>
             <button onclick="sendCustomRequest()">Send Request</button>
         </section>
-        
+
         <!-- Documentation -->
         <section class="section docs-section">
             <h2>📚 API Documentation</h2>
-            
+
             <h3>Base URL</h3>
             <pre>http://127.0.0.1:51473</pre>
             <p>LocalGhost always binds to localhost only for security.</p>
-            
+
             <h3>Authentication</h3>
             <p>Protected endpoints require authorization. When accessing a protected endpoint for the first time:</p>
             <ol style="color: var(--text-dim); margin-left: 1.5rem; margin-bottom: 1rem;">
@@ -409,35 +419,110 @@
                 <li>User approves: Allow Once, Session, or Always</li>
                 <li>Token is stored and reused for future requests</li>
             </ol>
-            
+
             <h3>Headers</h3>
             <table>
-                <tr><th>Header</th><th>Description</th><th>Required</th></tr>
-                <tr><td><code>X-Process-Name</code></td><td>Identifies your application</td><td>Recommended</td></tr>
-                <tr><td><code>X-Process-PID</code></td><td>Process ID for unique identification</td><td>Optional</td></tr>
-                <tr><td><code>X-Client-ID</code></td><td>Override automatic client ID</td><td>Optional</td></tr>
-                <tr><td><code>Authorization</code></td><td>Bearer token from previous approval</td><td>For protected</td></tr>
+                <tr>
+                    <th>Header</th>
+                    <th>Description</th>
+                    <th>Required</th>
+                </tr>
+                <tr>
+                    <td><code>X-Process-Name</code></td>
+                    <td>Identifies your application</td>
+                    <td>Recommended</td>
+                </tr>
+                <tr>
+                    <td><code>X-Process-PID</code></td>
+                    <td>Process ID for unique identification</td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>X-Client-ID</code></td>
+                    <td>Override automatic client ID</td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>Authorization</code></td>
+                    <td>Bearer token from previous approval</td>
+                    <td>For protected</td>
+                </tr>
             </table>
-            
+
             <h3>Built-in Endpoints</h3>
             <table>
-                <tr><th>Endpoint</th><th>Method</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>/health</code></td><td>GET</td><td>Public</td><td>Health check</td></tr>
-                <tr><td><code>/capabilities</code></td><td>GET</td><td>Public</td><td>List all plugins and endpoints</td></tr>
-                <tr><td><code>/permissions</code></td><td>GET</td><td>Protected</td><td>List granted permissions</td></tr>
-                <tr><td><code>/ws</code></td><td>WebSocket</td><td>Public</td><td>Real-time communication</td></tr>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Method</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>/health</code></td>
+                    <td>GET</td>
+                    <td>Public</td>
+                    <td>Health check</td>
+                </tr>
+                <tr>
+                    <td><code>/capabilities</code></td>
+                    <td>GET</td>
+                    <td>Public</td>
+                    <td>List all plugins and endpoints</td>
+                </tr>
+                <tr>
+                    <td><code>/permissions</code></td>
+                    <td>GET</td>
+                    <td>Protected</td>
+                    <td>List granted permissions</td>
+                </tr>
+                <tr>
+                    <td><code>/ws</code></td>
+                    <td>WebSocket</td>
+                    <td>Public</td>
+                    <td>Real-time communication</td>
+                </tr>
             </table>
-            
+
             <h3>Demo Plugin Endpoints</h3>
             <table>
-                <tr><th>Endpoint</th><th>Method</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>/demo/ping</code></td><td>GET</td><td>Public</td><td>Simple ping</td></tr>
-                <tr><td><code>/demo/echo</code></td><td>POST</td><td>Public</td><td>Echo request body</td></tr>
-                <tr><td><code>/demo/time</code></td><td>GET</td><td>Public</td><td>Current server time</td></tr>
-                <tr><td><code>/demo/system-info</code></td><td>GET</td><td>Protected</td><td>System information</td></tr>
-                <tr><td><code>/demo/execute</code></td><td>POST</td><td>Protected</td><td>Execute safe command</td></tr>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Method</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>/demo/ping</code></td>
+                    <td>GET</td>
+                    <td>Public</td>
+                    <td>Simple ping</td>
+                </tr>
+                <tr>
+                    <td><code>/demo/echo</code></td>
+                    <td>POST</td>
+                    <td>Public</td>
+                    <td>Echo request body</td>
+                </tr>
+                <tr>
+                    <td><code>/demo/time</code></td>
+                    <td>GET</td>
+                    <td>Public</td>
+                    <td>Current server time</td>
+                </tr>
+                <tr>
+                    <td><code>/demo/system-info</code></td>
+                    <td>GET</td>
+                    <td>Protected</td>
+                    <td>System information</td>
+                </tr>
+                <tr>
+                    <td><code>/demo/execute</code></td>
+                    <td>POST</td>
+                    <td>Protected</td>
+                    <td>Execute safe command</td>
+                </tr>
             </table>
-            
+
             <h3>JavaScript Example</h3>
             <pre>
 // Simple fetch request
@@ -464,7 +549,7 @@ const ws = new WebSocket('ws://127.0.0.1:51473/ws');
 ws.onmessage = (e) => console.log(JSON.parse(e.data));
 ws.send(JSON.stringify({ type: 'hello' }));
             </pre>
-            
+
             <h3>Python Example</h3>
             <pre>
 import httpx
@@ -483,7 +568,35 @@ response = httpx.post(
     json={"message": "Hello from Python!"}
 )
             </pre>
-            
+
+            <h3>🛑 How to Stop LocalGhost</h3>
+            <table>
+                <tr>
+                    <th>Method</th>
+                    <th>Command</th>
+                </tr>
+                <tr>
+                    <td>Press Ctrl+C in terminal</td>
+                    <td>Stops the running server</td>
+                </tr>
+                <tr>
+                    <td>CLI command</td>
+                    <td><code>localghost stop</code></td>
+                </tr>
+                <tr>
+                    <td>Kill by port</td>
+                    <td><code>lsof -ti :51473 | xargs kill</code> (macOS/Linux)</td>
+                </tr>
+                <tr>
+                    <td>System tray</td>
+                    <td>Click tray icon → Quit</td>
+                </tr>
+                <tr>
+                    <td>Kill all</td>
+                    <td><code>pkill -f localghost</code></td>
+                </tr>
+            </table>
+
             <h3>CLI Commands</h3>
             <pre>
 # Run server (with system tray)
@@ -491,6 +604,9 @@ localghost run
 
 # Run without tray
 localghost run --no-tray
+
+# Stop the service
+localghost stop
 
 # Install as auto-start service
 localghost install
@@ -515,34 +631,34 @@ localghost uninstall
     <script>
         const BASE_URL = 'http://127.0.0.1:51473';
         let ws = null;
-        
+
         // Console logging
         function log(message, type = 'info') {
             const console = document.getElementById('console');
             const time = new Date().toLocaleTimeString();
             const line = document.createElement('div');
             line.className = `console-line ${type}`;
-            
+
             let content = message;
             if (typeof message === 'object') {
                 content = JSON.stringify(message, null, 2);
             }
-            
+
             line.innerHTML = `<span class="timestamp">[${time}]</span>${content}`;
             console.appendChild(line);
             console.scrollTop = console.scrollHeight;
         }
-        
+
         function clearConsole() {
             document.getElementById('console').innerHTML = '';
             log('Console cleared');
         }
-        
+
         // HTTP requests
         async function makeRequest(method, path, body = null, headers = {}) {
             const url = `${BASE_URL}${path}`;
             log(`→ ${method} ${path}`, 'request');
-            
+
             try {
                 const options = {
                     method,
@@ -552,14 +668,14 @@ localghost uninstall
                         ...headers
                     }
                 };
-                
+
                 if (body && (method === 'POST' || method === 'PUT')) {
                     options.body = JSON.stringify(body);
                 }
-                
+
                 const response = await fetch(url, options);
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     log(`← ${response.status} OK`, 'response');
                     log(data, 'response');
@@ -567,43 +683,43 @@ localghost uninstall
                     log(`← ${response.status} Error`, 'error');
                     log(data, 'error');
                 }
-                
+
                 return data;
             } catch (error) {
                 log(`Error: ${error.message}`, 'error');
                 return null;
             }
         }
-        
+
         // Quick test buttons
         async function testHealth() {
             await makeRequest('GET', '/health');
         }
-        
+
         async function testCapabilities() {
             const data = await makeRequest('GET', '/capabilities');
             if (data) updateEndpointsGrid(data);
         }
-        
+
         async function testPing() {
             await makeRequest('GET', '/demo/ping');
         }
-        
+
         async function testTime() {
             await makeRequest('GET', '/demo/time');
         }
-        
+
         async function testSystemInfo() {
             await makeRequest('GET', '/demo/system-info');
         }
-        
+
         // Custom request
         async function sendCustomRequest() {
             const method = document.getElementById('reqMethod').value;
             const path = document.getElementById('reqPath').value;
             let body = null;
             let headers = {};
-            
+
             try {
                 if (method === 'POST' || method === 'PUT') {
                     body = JSON.parse(document.getElementById('reqBody').value);
@@ -613,17 +729,17 @@ localghost uninstall
                 log('Invalid JSON in body or headers', 'error');
                 return;
             }
-            
+
             await makeRequest(method, path, body, headers);
         }
-        
+
         // WebSocket
         function connectWebSocket() {
             if (ws) return;
-            
+
             log('Connecting to WebSocket...', 'request');
             ws = new WebSocket(`${BASE_URL.replace('http', 'ws')}/ws`);
-            
+
             ws.onopen = () => {
                 log('WebSocket connected', 'response');
                 document.getElementById('wsStatus').classList.add('connected');
@@ -631,11 +747,11 @@ localghost uninstall
                 document.getElementById('wsSendBtn').disabled = false;
                 document.getElementById('wsDisconnectBtn').disabled = false;
             };
-            
+
             ws.onmessage = (event) => {
                 log(`WS ← ${event.data}`, 'response');
             };
-            
+
             ws.onclose = () => {
                 log('WebSocket disconnected', 'error');
                 document.getElementById('wsStatus').classList.remove('connected');
@@ -644,15 +760,15 @@ localghost uninstall
                 document.getElementById('wsDisconnectBtn').disabled = true;
                 ws = null;
             };
-            
+
             ws.onerror = (error) => {
                 log('WebSocket error', 'error');
             };
         }
-        
+
         function sendWebSocket() {
             if (!ws) return;
-            
+
             try {
                 const message = document.getElementById('wsMessage').value;
                 log(`WS → ${message}`, 'request');
@@ -661,18 +777,18 @@ localghost uninstall
                 log('Error sending WebSocket message', 'error');
             }
         }
-        
+
         function disconnectWebSocket() {
             if (ws) {
                 ws.close();
             }
         }
-        
+
         // Update endpoints grid
         function updateEndpointsGrid(capabilities) {
             const grid = document.getElementById('endpointsGrid');
             grid.innerHTML = '';
-            
+
             // Built-in endpoints
             const builtIn = [
                 { path: '/health', method: 'GET', type: 'public', desc: 'Health check' },
@@ -680,11 +796,11 @@ localghost uninstall
                 { path: '/permissions', method: 'GET', type: 'protected', desc: 'List permissions' },
                 { path: '/ws', method: 'WS', type: 'public', desc: 'WebSocket' },
             ];
-            
+
             builtIn.forEach(ep => {
                 grid.appendChild(createEndpointCard(ep));
             });
-            
+
             // Plugin endpoints
             if (capabilities.plugins) {
                 Object.entries(capabilities.plugins).forEach(([name, plugin]) => {
@@ -699,7 +815,7 @@ localghost uninstall
                 });
             }
         }
-        
+
         function createEndpointCard(ep) {
             const card = document.createElement('div');
             card.className = 'endpoint-card';
@@ -707,7 +823,7 @@ localghost uninstall
                 document.getElementById('reqPath').value = ep.path;
                 document.getElementById('reqMethod').value = ep.method === 'WS' ? 'GET' : ep.method;
             };
-            
+
             card.innerHTML = `
                 <div class="endpoint-header">
                     <span class="endpoint-path">${ep.path}</span>
@@ -718,10 +834,10 @@ localghost uninstall
                 </div>
                 <div class="endpoint-desc">${ep.desc}</div>
             `;
-            
+
             return card;
         }
-        
+
         // Check server status on load
         async function checkStatus() {
             try {
@@ -735,9 +851,10 @@ localghost uninstall
                 log('LocalGhost server not running. Start with: localghost run', 'error');
             }
         }
-        
+
         // Init
         checkStatus();
     </script>
 </body>
+
 </html>
