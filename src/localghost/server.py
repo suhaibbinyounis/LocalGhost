@@ -213,8 +213,19 @@ def create_app() -> FastAPI:
         """Serve the demo HTML page."""
         from fastapi.responses import HTMLResponse
         from pathlib import Path
+        import importlib.resources
         
-        # Try to find demo.html in examples directory
+        # Try package static folder first (works after pip install)
+        try:
+            # Python 3.9+ way
+            static_dir = Path(__file__).parent / "static"
+            demo_path = static_dir / "demo.html"
+            if demo_path.exists():
+                return HTMLResponse(content=demo_path.read_text(), status_code=200)
+        except Exception:
+            pass
+        
+        # Fallback to examples directory (for development)
         demo_paths = [
             Path(__file__).parent.parent.parent / "examples" / "demo.html",
             Path.cwd() / "examples" / "demo.html",
@@ -225,7 +236,7 @@ def create_app() -> FastAPI:
                 return HTMLResponse(content=demo_path.read_text(), status_code=200)
         
         return HTMLResponse(
-            content="<h1>Demo page not found</h1><p>Run from LocalGhost directory</p>",
+            content="<h1>Demo page not found</h1><p>Please reinstall: pip install -e .</p>",
             status_code=404
         )
 

@@ -64,6 +64,9 @@ Repository = "https://github.com/suhaibbinyounis/LocalGhost"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+localghost = ["static/*.html", "static/*.css", "static/*.js"]
+
 # ============================================================================
 # LocalGhost Configuration Defaults
 # All hardcoded values go here - read at runtime via config.py
