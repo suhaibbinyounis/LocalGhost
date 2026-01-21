@@ -132,6 +132,24 @@ localghost uninstall
 
 ---
 
+### 🛑 How to Stop LocalGhost
+
+| Method | Command |
+|--------|---------|
+| Ctrl+C | Press in the terminal where it's running |
+| CLI | `localghost stop` |
+| Kill by port | `lsof -ti :51473 \| xargs kill` (macOS/Linux) |
+| System tray | Click ghost icon → Quit |
+| Kill all | `pkill -f localghost` |
+
+**Windows:**
+```powershell
+Stop-Process -Name python -Force  # If running directly
+# Or use Task Manager to end the process
+```
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Start the server
