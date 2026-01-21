@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "localghost"
+version = "0.1.0"
+description = "Cross-platform local authorization service with consent-driven security"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Suhaib Bin Younis" }
+]
+keywords = ["daemon", "service", "ipc", "authorization", "system-tray"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: No Input/Output (Daemon)",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Networking",
+]
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pystray",
+    "pydantic",
+    "pydantic-settings",
+    "click",
+    "platformdirs",
+    "aiosqlite",
+    "cryptography",
+    "websockets",
+    "pillow",
+    "tomli; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "mypy",
+    "ruff",
+    "httpx",
+]
+windows = [
+    "pywin32; sys_platform == 'win32'",
+]
+
+[project.scripts]
+localghost = "localghost.__main__:cli"
+
+[project.entry-points."localghost.post_install"]
+register = "localghost._postinstall:register"
+
+[project.urls]
+Homepage = "https://github.com/suhaibbinyounis/LocalGhost"
+Repository = "https://github.com/suhaibbinyounis/LocalGhost"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# ============================================================================
+# LocalGhost Configuration Defaults
+# All hardcoded values go here - read at runtime via config.py
+# ============================================================================
+[tool.localghost]
+app_name = "LocalGhost"
+default_host = "127.0.0.1"
+default_port = 8473
+token_expiry_hours = 24
+db_name = "localghost.db"
+config_filename = "config.yaml"
+log_filename = "localghost.log"
+
+# Service/daemon settings
+service_name = "localghost"
+service_display_name = "LocalGhost Service"
+service_description = "Local authorization service for cross-platform IPC"
+
+# Consent defaults
+consent_timeout_seconds = 60
+default_grant_duration_hours = 8
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
