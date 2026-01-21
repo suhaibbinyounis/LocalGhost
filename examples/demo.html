@@ -629,8 +629,39 @@ localghost uninstall
     </div>
 
     <script>
-        const BASE_URL = 'http://127.0.0.1:51473';
+        // Auto-discover LocalGhost port
+        let BASE_URL = 'http://127.0.0.1:51473';
+        const COMMON_PORTS = [51473, 8473, 51474, 51475, 51476];
         let ws = null;
+
+        // Try to find running server on startup
+        async function discoverServer() {
+            for (const port of COMMON_PORTS) {
+                try {
+                    const response = await fetch(`http://127.0.0.1:${port}/health`, {
+                        signal: AbortSignal.timeout(1000)
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.service === 'LocalGhost' || data.status === 'healthy') {
+                            BASE_URL = `http://127.0.0.1:${port}`;
+                            log(`Found LocalGhost on port ${port}`, 'response');
+                            document.getElementById('httpStatus').classList.add('connected');
+                            // Update base URL display
+                            document.querySelectorAll('pre').forEach(pre => {
+                                pre.innerHTML = pre.innerHTML.replace(/127\.0\.0\.1:\d+/g, `127.0.0.1:${port}`);
+                            });
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    continue;
+                }
+            }
+            log('LocalGhost not running. Tried ports: ' + COMMON_PORTS.join(', '), 'error');
+            log('Start with: localghost run', 'error');
+            return false;
+        }
 
         // Console logging
         function log(message, type = 'info') {
@@ -840,15 +871,9 @@ localghost uninstall
 
         // Check server status on load
         async function checkStatus() {
-            try {
-                const response = await fetch(`${BASE_URL}/health`);
-                if (response.ok) {
-                    document.getElementById('httpStatus').classList.add('connected');
-                    log('Connected to LocalGhost server', 'response');
-                    testCapabilities();
-                }
-            } catch (e) {
-                log('LocalGhost server not running. Start with: localghost run', 'error');
+            const found = await discoverServer();
+            if (found) {
+                testCapabilities();
             }
         }
 

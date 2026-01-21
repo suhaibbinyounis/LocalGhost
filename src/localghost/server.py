@@ -304,6 +304,15 @@ def run_server(
         port = find_available_port(host, port + 1)
         print(f"\n⚠️  Port {old_port} was in use, using port {port} instead\n")
 
+    # Save running port to file for discovery
+    settings = get_settings()
+    port_file = settings.data_dir / ".port"
+    try:
+        settings.ensure_dirs()
+        port_file.write_text(str(port))
+    except Exception as e:
+        logger.warning(f"Could not save port file: {e}")
+
     app = get_app()
 
     # Start system tray in background thread if enabled
@@ -325,13 +334,53 @@ def run_server(
     print(f"   Press Ctrl+C to stop\n")
 
     # Run uvicorn
-    config = uvicorn.Config(
-        app,
-        host=host,
-        port=port,
-        log_level="info",
-        access_log=True,
-    )
-    server = uvicorn.Server(config)
-    server.run()
+    try:
+        config = uvicorn.Config(
+            app,
+            host=host,
+            port=port,
+            log_level="info",
+            access_log=True,
+        )
+        server = uvicorn.Server(config)
+        server.run()
+    finally:
+        # Cleanup port file on exit
+        try:
+            if port_file.exists():
+                port_file.unlink()
+        except Exception:
+            pass
 
+
+def find_running_instance() -> tuple[str, int] | None:
+    """Find a running LocalGhost instance on common ports."""
+    import httpx
+    
+    # Check saved port file first
+    try:
+        from .config import get_settings
+        settings = get_settings()
+        port_file = settings.data_dir / ".port"
+        if port_file.exists():
+            saved_port = int(port_file.read_text().strip())
+            try:
+                response = httpx.get(f"http://127.0.0.1:{saved_port}/health", timeout=2)
+                if response.status_code == 200:
+                    return ("127.0.0.1", saved_port)
+            except Exception:
+                pass
+    except Exception:
+        pass
+    
+    # Check common ports
+    common_ports = [51473, 8473, 51474, 51475]
+    for p in common_ports:
+        try:
+            response = httpx.get(f"http://127.0.0.1:{p}/health", timeout=1)
+            if response.status_code == 200 and "LocalGhost" in response.text:
+                return ("127.0.0.1", p)
+        except Exception:
+            continue
+    
+    return None
