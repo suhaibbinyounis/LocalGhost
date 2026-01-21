@@ -399,7 +399,7 @@
             <h2>📚 API Documentation</h2>
             
             <h3>Base URL</h3>
-            <pre>http://127.0.0.1:8473</pre>
+            <pre>http://127.0.0.1:51473</pre>
             <p>LocalGhost always binds to localhost only for security.</p>
             
             <h3>Authentication</h3>
@@ -441,11 +441,11 @@
             <h3>JavaScript Example</h3>
             <pre>
 // Simple fetch request
-const response = await fetch('http://127.0.0.1:8473/health');
+const response = await fetch('http://127.0.0.1:51473/health');
 const data = await response.json();
 
 // With custom headers for identification
-const response = await fetch('http://127.0.0.1:8473/demo/system-info', {
+const response = await fetch('http://127.0.0.1:51473/demo/system-info', {
     headers: {
         'X-Process-Name': 'my-app',
         'X-Process-PID': '12345'
@@ -453,14 +453,14 @@ const response = await fetch('http://127.0.0.1:8473/demo/system-info', {
 });
 
 // POST request
-const response = await fetch('http://127.0.0.1:8473/demo/echo', {
+const response = await fetch('http://127.0.0.1:51473/demo/echo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message: 'Hello!' })
 });
 
 // WebSocket connection
-const ws = new WebSocket('ws://127.0.0.1:8473/ws');
+const ws = new WebSocket('ws://127.0.0.1:51473/ws');
 ws.onmessage = (e) => console.log(JSON.parse(e.data));
 ws.send(JSON.stringify({ type: 'hello' }));
             </pre>
@@ -470,16 +470,16 @@ ws.send(JSON.stringify({ type: 'hello' }));
 import httpx
 
 # Simple request
-response = httpx.get("http://127.0.0.1:8473/health")
+response = httpx.get("http://127.0.0.1:51473/health")
 print(response.json())
 
 # With identification headers
 headers = {"X-Process-Name": "my-python-app"}
-response = httpx.get("http://127.0.0.1:8473/demo/system-info", headers=headers)
+response = httpx.get("http://127.0.0.1:51473/demo/system-info", headers=headers)
 
 # POST request
 response = httpx.post(
-    "http://127.0.0.1:8473/demo/echo",
+    "http://127.0.0.1:51473/demo/echo",
     json={"message": "Hello from Python!"}
 )
             </pre>
@@ -513,7 +513,7 @@ localghost uninstall
     </div>
 
     <script>
-        const BASE_URL = 'http://127.0.0.1:8473';
+        const BASE_URL = 'http://127.0.0.1:51473';
         let ws = null;
         
         // Console logging

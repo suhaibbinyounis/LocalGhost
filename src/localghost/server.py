@@ -244,13 +244,54 @@ def get_app() -> FastAPI:
 
 def run_server(
     host: str = "127.0.0.1",
-    port: int = 8473,
+    port: int = 51473,
     enable_tray: bool = True,
 ) -> None:
     """Run the LocalGhost server."""
+    import socket
     import threading
 
     import uvicorn
+
+    def is_port_available(h: str, p: int) -> bool:
+        """Check if a port is available."""
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((h, p))
+                return True
+        except OSError:
+            return False
+
+    def find_available_port(h: str, start_port: int) -> int:
+        """Find an available port starting from start_port."""
+        for p in range(start_port, start_port + 100):
+            if is_port_available(h, p):
+                return p
+        raise RuntimeError("No available ports found")
+
+    def check_if_running(h: str, p: int) -> bool:
+        """Check if LocalGhost is already running on this port."""
+        try:
+            import httpx
+            response = httpx.get(f"http://{h}:{p}/health", timeout=2)
+            return response.status_code == 200 and "LocalGhost" in response.text
+        except Exception:
+            return False
+
+    # Check if already running on default port
+    if check_if_running(host, port):
+        logger.info(f"LocalGhost is already running on {host}:{port}")
+        print(f"\n✅ LocalGhost is already running at http://{host}:{port}")
+        print(f"   Open http://{host}:{port}/demo in your browser")
+        print(f"   Use 'localghost stop' to stop the service\n")
+        return
+
+    # Check if port is in use by something else
+    if not is_port_available(host, port):
+        logger.warning(f"Port {port} in use, finding alternative...")
+        old_port = port
+        port = find_available_port(host, port + 1)
+        print(f"\n⚠️  Port {old_port} was in use, using port {port} instead\n")
 
     app = get_app()
 
@@ -268,6 +309,10 @@ def run_server(
         except ImportError as e:
             logger.warning(f"System tray not available: {e}")
 
+    print(f"\n👻 LocalGhost running at http://{host}:{port}")
+    print(f"   Demo page: http://{host}:{port}/demo")
+    print(f"   Press Ctrl+C to stop\n")
+
     # Run uvicorn
     config = uvicorn.Config(
         app,
@@ -278,3 +323,4 @@ def run_server(
     )
     server = uvicorn.Server(config)
     server.run()
+

@@ -71,7 +71,7 @@ where = ["src"]
 [tool.localghost]
 app_name = "LocalGhost"
 default_host = "127.0.0.1"
-default_port = 8473
+default_port = 51473
 token_expiry_hours = 24
 db_name = "localghost.db"
 config_filename = "config.yaml"

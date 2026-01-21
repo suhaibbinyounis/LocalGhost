@@ -146,7 +146,7 @@ You'll see a 👻 ghost icon in your system tray/menu bar.
 
 Open your browser and go to:
 ```
-http://127.0.0.1:8473/demo
+http://127.0.0.1:51473/demo
 ```
 
 This page lets you test all features and shows your team how to use the API.
@@ -155,10 +155,10 @@ This page lets you test all features and shows your team how to use the API.
 
 ```bash
 # Using curl
-curl http://127.0.0.1:8473/health
+curl http://127.0.0.1:51473/health
 
 # Or in your browser
-http://127.0.0.1:8473/health
+http://127.0.0.1:51473/health
 ```
 
 ---
@@ -216,7 +216,7 @@ Remove-Item -Recurse "$env:APPDATA\LocalGhost"
 │  │   Browser    │ ───────────────► │                  │    │
 │  └──────────────┘                  │                  │    │
 │                                    │   LocalGhost     │    │
-│  ┌──────────────┐     HTTP/WS      │   (Port 8473)    │    │
+│  ┌──────────────┐     HTTP/WS      │   (Port 51473)    │    │
 │  │  Your App    │ ───────────────► │                  │    │
 │  └──────────────┘                  │  127.0.0.1 only  │    │
 │                                    │                  │    │
@@ -303,7 +303,7 @@ X-Process-PID: 12345  (optional)
 ### Base URL
 
 ```
-http://127.0.0.1:8473
+http://127.0.0.1:51473
 ```
 
 ### Built-in Endpoints
@@ -334,12 +334,12 @@ http://127.0.0.1:8473
 
 ```javascript
 // Simple request (public endpoint)
-const response = await fetch('http://127.0.0.1:8473/health');
+const response = await fetch('http://127.0.0.1:51473/health');
 const data = await response.json();
 console.log(data);  // {status: "healthy", version: "0.1.0", ...}
 
 // With identification (recommended)
-const response = await fetch('http://127.0.0.1:8473/demo/system-info', {
+const response = await fetch('http://127.0.0.1:51473/demo/system-info', {
     headers: {
         'X-Process-Name': 'my-web-app'
     }
@@ -354,12 +354,12 @@ const response = await fetch('http://127.0.0.1:8473/demo/system-info', {
 import httpx
 
 # Simple request
-response = httpx.get("http://127.0.0.1:8473/health")
+response = httpx.get("http://127.0.0.1:51473/health")
 print(response.json())
 
 # With identification
 response = httpx.get(
-    "http://127.0.0.1:8473/demo/system-info",
+    "http://127.0.0.1:51473/demo/system-info",
     headers={"X-Process-Name": "my-python-script"}
 )
 print(response.json())
@@ -369,16 +369,16 @@ print(response.json())
 
 ```bash
 # Health check
-curl http://127.0.0.1:8473/health
+curl http://127.0.0.1:51473/health
 
 # With identification
-curl -H "X-Process-Name: my-script" http://127.0.0.1:8473/demo/system-info
+curl -H "X-Process-Name: my-script" http://127.0.0.1:51473/demo/system-info
 ```
 
 ### WebSocket
 
 ```javascript
-const ws = new WebSocket('ws://127.0.0.1:8473/ws');
+const ws = new WebSocket('ws://127.0.0.1:51473/ws');
 
 ws.onopen = () => {
     ws.send(JSON.stringify({ type: 'hello', data: 'world' }));
@@ -402,14 +402,14 @@ localghost run
 
 ### "Address already in use"
 
-**Another process is using port 8473.** Find and stop it:
+**Another process is using port 51473.** Find and stop it:
 ```bash
 # macOS/Linux
-lsof -i :8473
+lsof -i :51473
 kill <PID>
 
 # Windows (PowerShell)
-Get-NetTCPConnection -LocalPort 8473
+Get-NetTCPConnection -LocalPort 51473
 Stop-Process -Id <PID>
 ```
 
@@ -524,7 +524,7 @@ Remove-Item "$env:APPDATA\LocalGhost\.secret"
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `LOCALGHOST_HOST` | `127.0.0.1` | Bind address (don't change!) |
-| `LOCALGHOST_PORT` | `8473` | Port number |
+| `LOCALGHOST_PORT` | `51473` | Port number |
 | `LOCALGHOST_NO_AUTOSTART` | (not set) | Set to `1` to disable auto-start |
 
 ### CLI Options
@@ -548,7 +548,7 @@ All defaults are in `pyproject.toml` under `[tool.localghost]`:
 [tool.localghost]
 app_name = "LocalGhost"
 default_host = "127.0.0.1"
-default_port = 8473
+default_port = 51473
 token_expiry_hours = 24
 consent_timeout_seconds = 60
 ```
@@ -582,5 +582,5 @@ MIT License - see [LICENSE](LICENSE) file.
 ## 🆘 Need Help?
 
 1. Check [Troubleshooting](#-troubleshooting) above
-2. Open the demo page: `http://127.0.0.1:8473/demo`
+2. Open the demo page: `http://127.0.0.1:51473/demo`
 3. [Open an issue](https://github.com/suhaibbinyounis/LocalGhost/issues) on GitHub
