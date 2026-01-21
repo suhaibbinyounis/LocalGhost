@@ -125,3 +125,64 @@ class ConsentHandler:
         """Clear a pending request."""
         request_id = f"{client_id}:{endpoint}"
         self._pending_requests.pop(request_id, None)
+
+    async def request_consent(self, client_id: str, endpoint: str) -> dict[str, Any] | None:
+        """Request consent for a client to access an endpoint.
+        
+        This is a simplified version that doesn't require a Request object.
+        """
+        client_name = client_id.split("-")[0] if "-" in client_id else client_id
+        permissions = ["access"]
+
+        prompt = ConsentPrompt(
+            client_id=client_id,
+            client_name=client_name,
+            endpoint=endpoint,
+            permissions=permissions,
+            timeout_seconds=self.settings.consent_timeout_seconds,
+        )
+
+        logger.info(f"Requesting consent for {client_name} -> {endpoint}")
+        result = await show_consent_dialog(prompt)
+        logger.info(f"Consent result: {result}")
+
+        if result == ConsentResult.DENIED:
+            return {"approved": False}
+
+        # Map result to grant type
+        grant_type_map = {
+            ConsentResult.ALLOW_ONCE: GrantType.TEMPORARY,
+            ConsentResult.ALLOW_SESSION: GrantType.SESSION,
+            ConsentResult.ALLOW_TIMED: GrantType.TIMED,
+            ConsentResult.ALLOW_PERMANENT: GrantType.PERMANENT,
+        }
+        grant_type = grant_type_map.get(result, GrantType.TEMPORARY)
+
+        # Generate token
+        duration = None
+        if grant_type == GrantType.TIMED:
+            duration = self.settings.default_grant_duration_hours
+        elif grant_type == GrantType.PERMANENT:
+            duration = None
+        else:
+            duration = self.settings.token_expiry_hours
+
+        token = self.token_manager.generate_token(
+            client_id=client_id,
+            endpoint=endpoint,
+            permissions=permissions,
+            expires_in_hours=duration,
+        )
+
+        # Store permission
+        await self.permission_store.grant_permission(
+            client_id=client_id,
+            endpoint=endpoint,
+            permissions=permissions,
+            grant_type=grant_type,
+            token=token,
+            client_name=client_name,
+            duration_hours=duration,
+        )
+
+        return {"approved": True, "permissions": permissions, "token": token}

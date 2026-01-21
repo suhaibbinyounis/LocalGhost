@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncGenerator
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -27,6 +27,58 @@ _token_manager: TokenManager | None = None
 _permission_store: PermissionStore | None = None
 _plugin_registry: PluginRegistry | None = None
 _consent_handler: ConsentHandler | None = None
+
+
+async def require_auth(request: Request) -> dict[str, Any]:
+    """Dependency that requires authorization for protected endpoints.
+    
+    Triggers consent prompt if not already authorized.
+    """
+    global _token_manager, _permission_store, _consent_handler
+    
+    if not _token_manager or not _permission_store:
+        raise HTTPException(status_code=503, detail="Service not fully initialized")
+    
+    path = request.url.path
+    
+    # Get client identification
+    client_id = request.headers.get("X-Client-ID")
+    if not client_id:
+        process_name = request.headers.get("X-Process-Name", "unknown")
+        process_pid = request.headers.get("X-Process-PID")
+        pid = int(process_pid) if process_pid else None
+        client_id = _token_manager.generate_client_id(process_name, pid)
+    
+    # Check for authorization header
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header[7:]
+        payload = _token_manager.validate_token(token)
+        if payload and payload.client_id == client_id:
+            return {"client_id": client_id, "permissions": payload.permissions}
+    
+    # Check stored permission
+    stored = await _permission_store.check_permission(client_id, path)
+    if stored:
+        return {"client_id": client_id, "permissions": stored.get("permissions", [])}
+    
+    # No valid auth - trigger consent flow
+    if _consent_handler:
+        logger.info(f"Requesting consent for {client_id} to access {path}")
+        result = await _consent_handler.request_consent(client_id, path)
+        if result and result.get("approved"):
+            return {"client_id": client_id, "permissions": result.get("permissions", [])}
+    
+    # Denied
+    raise HTTPException(
+        status_code=401,
+        detail={
+            "error": "unauthorized",
+            "message": "Access denied. Consent was not granted.",
+            "client_id": client_id,
+            "endpoint": path,
+        }
+    )
 
 
 def _load_or_create_secret(settings: Settings) -> bytes:
@@ -118,7 +170,7 @@ def create_app() -> FastAPI:
         return {"version": __version__, "plugins": {}}
 
     @app.get("/permissions", tags=["protected"])
-    async def list_permissions() -> dict[str, Any]:
+    async def list_permissions(auth: dict = Depends(require_auth)) -> dict[str, Any]:
         """List all granted permissions (admin endpoint)."""
         if _permission_store:
             grants = await _permission_store.list_all_grants()
@@ -170,7 +222,7 @@ def create_app() -> FastAPI:
         }
 
     @app.get("/demo/system-info", tags=["demo"])
-    async def demo_system_info() -> dict[str, Any]:
+    async def demo_system_info(auth: dict = Depends(require_auth)) -> dict[str, Any]:
         """Get system information (protected endpoint)."""
         import platform
         import sys
@@ -180,10 +232,11 @@ def create_app() -> FastAPI:
             "architecture": platform.machine(),
             "python_version": sys.version,
             "hostname": platform.node(),
+            "authorized_as": auth.get("client_id"),
         }
 
     @app.post("/demo/execute", tags=["demo"])
-    async def demo_execute(command: str = "echo hello") -> dict[str, Any]:
+    async def demo_execute(command: str = "echo hello", auth: dict = Depends(require_auth)) -> dict[str, Any]:
         """Execute a simple command (protected endpoint)."""
         import asyncio
         
@@ -314,43 +367,102 @@ def run_server(
         logger.warning(f"Could not save port file: {e}")
 
     app = get_app()
-
-    # Start system tray in background thread if enabled
-    tray_thread = None
-    if enable_tray:
+    
+    # Determine execution mode based on platform
+    import sys
+    is_macos = sys.platform == "darwin"
+    
+    if enable_tray and is_macos:
+        # macOS Special Case: Tray MUST run on main thread
+        # So we run Uvicorn in a background thread
+        
+        # Start server in background thread
+        def server_runner():
+            try:
+                # Disable signal handlers for background thread
+                config = uvicorn.Config(
+                    app,
+                    host=host,
+                    port=port,
+                    log_level="info",
+                    access_log=True,
+                )
+                server = uvicorn.Server(config)
+                # Hack: Prevent uvicorn from trying to install signal handlers
+                # which fails in a non-main thread
+                original_matcher = server.should_exit
+                server.install_signal_handlers = lambda: None
+                server.run()
+            except Exception as e:
+                logger.error(f"Server thread error: {e}")
+                
+        server_thread = threading.Thread(target=server_runner, daemon=True)
+        server_thread.start()
+        
+        print(f"\n👻 LocalGhost running at http://{host}:{port}")
+        print(f"   Demo page: http://{host}:{port}/demo")
+        print(f"   Check system tray for controls")
+        print(f"   Press Ctrl+C to stop\n")
+        
+        # Run Tray on Main Thread (Blocking)
         try:
             from .tray import run_tray
-
-            def tray_runner() -> None:
-                run_tray(host, port)
-
-            tray_thread = threading.Thread(target=tray_runner, daemon=True)
-            tray_thread.start()
-        except ImportError as e:
-            logger.warning(f"System tray not available: {e}")
-
-    print(f"\n👻 LocalGhost running at http://{host}:{port}")
-    print(f"   Demo page: http://{host}:{port}/demo")
-    print(f"   Press Ctrl+C to stop\n")
-
-    # Run uvicorn
-    try:
-        config = uvicorn.Config(
-            app,
-            host=host,
-            port=port,
-            log_level="info",
-            access_log=True,
-        )
-        server = uvicorn.Server(config)
-        server.run()
-    finally:
-        # Cleanup port file on exit
-        try:
-            if port_file.exists():
-                port_file.unlink()
-        except Exception:
+            run_tray(host, port)
+        except ImportError:
+            logger.warning("System tray not available")
+        except KeyboardInterrupt:
+            # Handle Ctrl+C gracefully
             pass
+        finally:
+            # Cleanup port file on exit
+            try:
+                if port_file.exists():
+                    port_file.unlink()
+            except Exception:
+                pass
+            import os
+            os._exit(0)
+            
+    else:
+        # Standard Mode (Linux/Windows or No Tray)
+        # Server runs on main thread, Tray runs in background thread
+        
+        # Start system tray in background thread if enabled
+        tray_thread = None
+        if enable_tray:
+            try:
+                from .tray import run_tray
+
+                def tray_runner() -> None:
+                    run_tray(host, port)
+
+                tray_thread = threading.Thread(target=tray_runner, daemon=True)
+                tray_thread.start()
+            except ImportError as e:
+                logger.warning(f"System tray not available: {e}")
+
+        print(f"\n👻 LocalGhost running at http://{host}:{port}")
+        print(f"   Demo page: http://{host}:{port}/demo")
+        print(f"   Press Ctrl+C to stop\n")
+
+        # Run uvicorn on main thread
+        try:
+            config = uvicorn.Config(
+                app,
+                host=host,
+                port=port,
+                log_level="info",
+                access_log=True,
+            )
+            server = uvicorn.Server(config)
+            server.run()
+        finally:
+            # Cleanup port file on exit
+            try:
+                if port_file.exists():
+                    port_file.unlink()
+            except Exception:
+                pass
 
 
 def find_running_instance() -> tuple[str, int] | None:
