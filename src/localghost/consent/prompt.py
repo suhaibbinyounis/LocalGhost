@@ -94,7 +94,7 @@ async def _show_windows_dialog(prompt: ConsentPrompt) -> ConsentResult:
     ps_script = f'''
     Add-Type -AssemblyName System.Windows.Forms
     $result = [System.Windows.Forms.MessageBox]::Show(
-        "The application '{prompt.client_name}' wants to access:`n`n{prompt.endpoint}`n`nPermissions: {', '.join(prompt.permissions)}`n`nAllow this access?",
+        "The application '{prompt.client_name}' wants to access:`n`n{prompt.endpoint}`n`nPermissions: {', '.join(prompt.permissions)}`n`nSelect:`nYes - Always Allow`nNo - Allow Once`nCancel - Deny",
         "LocalGhost Authorization",
         [System.Windows.Forms.MessageBoxButtons]::YesNoCancel,
         [System.Windows.Forms.MessageBoxIcon]::Question
