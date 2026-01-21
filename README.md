@@ -409,6 +409,205 @@ ws.onmessage = (event) => {
 
 ---
 
+## 🌐 Integration Guide
+
+### Connecting from a Web Page
+
+LocalGhost is designed to be accessed from web pages running locally. Here's a complete example:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My App</title>
+</head>
+<body>
+    <button onclick="checkHealth()">Check LocalGhost</button>
+    <pre id="output"></pre>
+
+    <script>
+        // LocalGhost tries multiple ports automatically
+        const PORTS = [51473, 8473, 51474, 51475];
+        let BASE_URL = null;
+
+        // Find running LocalGhost server
+        async function findServer() {
+            for (const port of PORTS) {
+                try {
+                    const res = await fetch(`http://127.0.0.1:${port}/health`, {
+                        signal: AbortSignal.timeout(1000)
+                    });
+                    if (res.ok) {
+                        BASE_URL = `http://127.0.0.1:${port}`;
+                        console.log(`Found LocalGhost on port ${port}`);
+                        return true;
+                    }
+                } catch (e) {}
+            }
+            alert('LocalGhost not running. Run: localghost run');
+            return false;
+        }
+
+        // Call a LocalGhost endpoint
+        async function callAPI(path, options = {}) {
+            if (!BASE_URL && !await findServer()) return null;
+            
+            const response = await fetch(`${BASE_URL}${path}`, {
+                headers: { 'X-Process-Name': 'my-web-app', ...options.headers },
+                ...options
+            });
+            return response.json();
+        }
+
+        // Example usage
+        async function checkHealth() {
+            const data = await callAPI('/health');
+            document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Find server on page load
+        findServer();
+    </script>
+</body>
+</html>
+```
+
+### Connecting from a Python Script
+
+```python
+import httpx
+
+class LocalGhostClient:
+    """Simple client for LocalGhost API."""
+    
+    PORTS = [51473, 8473, 51474, 51475]
+    
+    def __init__(self, app_name: str = "my-python-app"):
+        self.app_name = app_name
+        self.base_url = self._find_server()
+    
+    def _find_server(self) -> str:
+        """Find running LocalGhost server."""
+        for port in self.PORTS:
+            try:
+                response = httpx.get(f"http://127.0.0.1:{port}/health", timeout=1)
+                if response.status_code == 200:
+                    return f"http://127.0.0.1:{port}"
+            except httpx.RequestError:
+                continue
+        raise RuntimeError("LocalGhost not running. Run: localghost run")
+    
+    def get(self, path: str) -> dict:
+        """Make GET request."""
+        response = httpx.get(
+            f"{self.base_url}{path}",
+            headers={"X-Process-Name": self.app_name}
+        )
+        return response.json()
+    
+    def post(self, path: str, data: dict) -> dict:
+        """Make POST request."""
+        response = httpx.post(
+            f"{self.base_url}{path}",
+            json=data,
+            headers={"X-Process-Name": self.app_name}
+        )
+        return response.json()
+
+# Usage
+client = LocalGhostClient("my-script")
+print(client.get("/health"))
+print(client.get("/demo/time"))
+print(client.post("/demo/echo", {"message": "Hello!"}))
+```
+
+### Connecting from Node.js
+
+```javascript
+const http = require('http');
+
+const PORTS = [51473, 8473, 51474, 51475];
+
+async function findLocalGhost() {
+    for (const port of PORTS) {
+        try {
+            const response = await fetch(`http://127.0.0.1:${port}/health`);
+            if (response.ok) return `http://127.0.0.1:${port}`;
+        } catch (e) {}
+    }
+    throw new Error('LocalGhost not running');
+}
+
+async function main() {
+    const baseUrl = await findLocalGhost();
+    console.log('Found LocalGhost at:', baseUrl);
+    
+    const response = await fetch(`${baseUrl}/demo/ping`);
+    console.log(await response.json());
+}
+
+main();
+```
+
+### Connecting from Shell Scripts
+
+```bash
+#!/bin/bash
+
+# Find LocalGhost port
+find_localghost() {
+    for port in 51473 8473 51474 51475; do
+        if curl -s "http://127.0.0.1:$port/health" > /dev/null 2>&1; then
+            echo $port
+            return 0
+        fi
+    done
+    echo "LocalGhost not running" >&2
+    return 1
+}
+
+PORT=$(find_localghost)
+if [ $? -eq 0 ]; then
+    curl -s "http://127.0.0.1:$PORT/health" | jq
+    curl -s "http://127.0.0.1:$PORT/demo/time" | jq
+fi
+```
+
+### Port Auto-Discovery
+
+LocalGhost saves its running port to a file for easy discovery:
+
+| Platform | Port File Location |
+|----------|-------------------|
+| Linux | `~/.local/share/LocalGhost/.port` |
+| macOS | `~/Library/Application Support/LocalGhost/.port` |
+| Windows | `%APPDATA%\LocalGhost\.port` |
+
+```python
+# Read port from file (Python)
+from pathlib import Path
+import os
+
+if os.name == 'nt':  # Windows
+    port_file = Path(os.environ['APPDATA']) / 'LocalGhost' / '.port'
+else:  # Linux/macOS
+    port_file = Path.home() / '.local' / 'share' / 'LocalGhost' / '.port'
+
+if port_file.exists():
+    port = int(port_file.read_text().strip())
+    print(f"LocalGhost running on port {port}")
+```
+
+### Common Ports
+
+| Port | Description |
+|------|-------------|
+| `51473` | Default port (new) |
+| `8473` | Legacy default port |
+| `51474-51476` | Fallback ports if default is busy |
+
+---
+
 ## 🔧 Troubleshooting
 
 ### "Connection refused" or "Cannot connect"
