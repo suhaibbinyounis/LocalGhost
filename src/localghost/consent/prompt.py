@@ -61,7 +61,7 @@ async def _show_macos_dialog(prompt: ConsentPrompt) -> ConsentResult:
     """Show macOS native dialog using osascript."""
     script = f'''
     set theDialog to display dialog "The application '{prompt.client_name}' wants to access:\\n\\n{prompt.endpoint}\\n\\nPermissions: {', '.join(prompt.permissions)}" ¬
-        buttons {{"Deny", "Allow Once", "Allow Always"}} ¬
+        buttons {{"Deny", "Allow Once", "Allow for Session"}} ¬
         default button "Deny" ¬
         with title "LocalGhost Authorization" ¬
         giving up after {prompt.timeout_seconds}
@@ -81,8 +81,8 @@ async def _show_macos_dialog(prompt: ConsentPrompt) -> ConsentResult:
     stdout, _ = await proc.communicate()
     result = stdout.decode().strip()
 
-    if result == "Allow Always":
-        return ConsentResult.ALLOW_PERMANENT
+    if result == "Allow for Session":
+        return ConsentResult.ALLOW_SESSION
     elif result == "Allow Once":
         return ConsentResult.ALLOW_ONCE
     else:
@@ -94,7 +94,7 @@ async def _show_windows_dialog(prompt: ConsentPrompt) -> ConsentResult:
     ps_script = f'''
     Add-Type -AssemblyName System.Windows.Forms
     $result = [System.Windows.Forms.MessageBox]::Show(
-        "The application '{prompt.client_name}' wants to access:`n`n{prompt.endpoint}`n`nPermissions: {', '.join(prompt.permissions)}`n`nSelect:`nYes - Always Allow`nNo - Allow Once`nCancel - Deny",
+        "The application '{prompt.client_name}' wants to access:`n`n{prompt.endpoint}`n`nPermissions: {', '.join(prompt.permissions)}`n`nSelect:`nYes - Allow for Session`nNo - Allow Once`nCancel - Deny",
         "LocalGhost Authorization",
         [System.Windows.Forms.MessageBoxButtons]::YesNoCancel,
         [System.Windows.Forms.MessageBoxIcon]::Question
@@ -111,7 +111,7 @@ async def _show_windows_dialog(prompt: ConsentPrompt) -> ConsentResult:
     result = stdout.decode().strip()
 
     if result == "Yes":
-        return ConsentResult.ALLOW_PERMANENT
+        return ConsentResult.ALLOW_SESSION
     elif result == "No":
         return ConsentResult.ALLOW_ONCE
     else:
@@ -132,12 +132,12 @@ async def _show_linux_dialog(prompt: ConsentPrompt) -> ConsentResult:
             "zenity", "--question",
             "--title=LocalGhost Authorization",
             f"--text={message}",
-            "--ok-label=Allow",
+            "--ok-label=Allow for Session",
             "--cancel-label=Deny",
             f"--timeout={prompt.timeout_seconds}",
         )
         await proc.communicate()
-        return ConsentResult.ALLOW_PERMANENT if proc.returncode == 0 else ConsentResult.DENIED
+        return ConsentResult.ALLOW_SESSION if proc.returncode == 0 else ConsentResult.DENIED
     except FileNotFoundError:
         pass
 
@@ -148,7 +148,7 @@ async def _show_linux_dialog(prompt: ConsentPrompt) -> ConsentResult:
             "--title=LocalGhost Authorization",
         )
         await proc.communicate()
-        return ConsentResult.ALLOW_PERMANENT if proc.returncode == 0 else ConsentResult.DENIED
+        return ConsentResult.ALLOW_SESSION if proc.returncode == 0 else ConsentResult.DENIED
     except FileNotFoundError:
         pass
 
@@ -171,7 +171,7 @@ async def _show_tkinter_dialog(prompt: ConsentPrompt) -> ConsentResult:
             f"The application '{prompt.client_name}' wants to access:\n\n"
             f"{prompt.endpoint}\n\n"
             f"Permissions: {', '.join(prompt.permissions)}\n\n"
-            "Allow this access?"
+            "Select Yes to allow for this session, No to allow once."
         )
 
         result = messagebox.askyesnocancel(
@@ -193,7 +193,7 @@ async def _show_tkinter_dialog(prompt: ConsentPrompt) -> ConsentResult:
     result = await loop.run_in_executor(None, _show)
 
     if result == "yes":
-        return ConsentResult.ALLOW_PERMANENT
+        return ConsentResult.ALLOW_SESSION
     elif result == "once":
         return ConsentResult.ALLOW_ONCE
     else:
